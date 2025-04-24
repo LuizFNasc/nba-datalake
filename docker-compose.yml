@@ -1,0 +1,50 @@
+#version: "3.8"
+
+services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  ingestion:
+    build: ./ingestion
+    container_name: ingestion
+    working_dir: /app
+    volumes:
+      - ./ingestion:/app
+    env_file:
+      - ./ingestion/.env
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - minio
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null
+
+  prefect-server:
+    image: prefecthq/prefect:2-latest
+    container_name: prefect-server
+    ports:
+      - "4200:4200"
+    command: prefect server start --host 0.0.0.0
+
+  prefect-agent:
+    image: prefecthq/prefect:2-latest
+    container_name: prefect-agent
+    depends_on:
+      - prefect-server
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    command: prefect agent start -q default
+
+volumes:
+  minio_data: {}

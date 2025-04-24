@@ -1,0 +1,7 @@
+nba_api
+boto3
+python-dotenv
+pandas
+pyarrow
+prefect>=2.0
+duckdb>=0.8.0
