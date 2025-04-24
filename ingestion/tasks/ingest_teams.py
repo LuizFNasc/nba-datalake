@@ -40,4 +40,4 @@ def ingest_teams():
         Body=json_data.encode('utf-8')
     )
 
-    print("✅ Estrutura de times ingerida para camada Bronze em nba/bronze/teams.json")
+    print("✅ Estrutura dos times ingerida para camada Bronze em nba/bronze/teams.json")
